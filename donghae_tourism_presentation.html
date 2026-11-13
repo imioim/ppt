@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>동해시 관광 명소 소개</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    background-color: #0b1320;
+    color: #1e293b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* Viewport container for 16:9 scaling */
+  #stage-wrapper {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at center, #132238 0%, #070d17 100%);
+  }
+
+  #slide-stage {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    background: #ffffff;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+    border-radius: 12px;
+    overflow: hidden;
+    transform-origin: center center;
+    transition: transform 0.2s ease-out;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1), transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    transform: translateX(24px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+    z-index: 2;
+  }
+
+  /* Slide 1: Cover */
+  .slide-cover {
+    background: linear-gradient(135deg, #09203f 0%, #164e63 55%, #0e7490 100%);
+    color: #ffffff;
+    padding: 72px 84px;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  .cover-bg-svg {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 680px;
+    height: 720px;
+    z-index: 0;
+    opacity: 0.92;
+  }
+
+  .cover-content {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin-top: 32px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 8px 18px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #bae6fd;
+    margin-bottom: 24px;
+  }
+
+  .cover-title {
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.22;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    color: #ffffff;
+  }
+
+  .cover-title span {
+    color: #38bdf8;
+  }
+
+  .cover-subtitle {
+    font-size: 21px;
+    line-height: 1.65;
+    color: #e0f2fe;
+    font-weight: 400;
+    margin-bottom: 44px;
+  }
+
+  .cover-index-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 28px;
+  }
+
+  .cover-index-item {
+    background: rgba(9, 32, 63, 0.55);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 10px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .cover-index-item:hover {
+    background: rgba(56, 189, 248, 0.22);
+    border-color: #38bdf8;
+    transform: translateY(-3px);
+  }
+
+  .cover-index-num {
+    font-size: 13px;
+    font-weight: 700;
+    color: #38bdf8;
+    margin-bottom: 4px;
+  }
+
+  .cover-index-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  /* Content Slides Layout */
+  .slide-content {
+    background: #f8fafc;
+    padding: 56px 72px;
+    display: grid;
+    grid-template-columns: 1.12fr 0.88fr;
+    gap: 52px;
+    align-items: center;
+  }
+
+  .text-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .slide-kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0284c7;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+  }
+
+  .slide-kicker-line {
+    width: 28px;
+    height: 3px;
+    background: #0284c7;
+    border-radius: 2px;
+  }
+
+  .slide-heading {
+    font-size: 42px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+
+  .slide-tagline {
+    font-size: 19px;
+    font-weight: 600;
+    color: #0369a1;
+    margin-bottom: 22px;
+  }
+
+  .slide-desc {
+    font-size: 17.5px;
+    line-height: 1.72;
+    color: #334155;
+    margin-bottom: 28px;
+    word-break: keep-all;
+  }
+
+  .feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .feature-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #0284c7;
+    border-radius: 10px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .feature-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #e0f2fe;
+    color: #0284c7;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .feature-text {
+    font-size: 16px;
+    line-height: 1.55;
+    color: #1e293b;
+    font-weight: 500;
+    word-break: keep-all;
+  }
+
+  .visual-column {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .artwork-frame {
+    width: 100%;
+    height: 490px;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+    border: 1px solid #cbd5e1;
+    position: relative;
+    background: #0f172a;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .artwork-frame svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .artwork-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 18px 22px;
+    background: linear-gradient(to top, rgba(9, 17, 30, 0.92), rgba(9, 17, 30, 0));
+    color: #f8fafc;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .artwork-tag {
+    background: rgba(56, 189, 248, 0.25);
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    color: #bae6fd;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Slide Header & Footer */
+  .slide-page-badge {
+    position: absolute;
+    top: 28px;
+    right: 36px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #64748b;
+    background: #e2e8f0;
+    padding: 5px 14px;
+    border-radius: 999px;
+    z-index: 5;
+  }
+
+  .slide-cover .slide-page-badge {
+    background: rgba(255, 255, 255, 0.15);
+    color: #e0f2fe;
+  }
+
+  /* Floating Control Bar */
+  .controls-bar {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 8px 18px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 100;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  }
+
+  .ctrl-btn {
+    background: transparent;
+    border: none;
+    color: #e2e8f0;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ctrl-btn:hover {
+    background: rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+  }
+
+  .ctrl-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .slide-dots {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 6px;
+  }
+
+  .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.28);
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .dot.active {
+    width: 24px;
+    border-radius: 999px;
+    background: #38bdf8;
+  }
+
+  .divider-v {
+    width: 1px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.18);
+  }
+
+  /* Overview Modal */
+  #overview-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 13, 23, 0.92);
+    backdrop-filter: blur(10px);
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+  }
+
+  #overview-modal.open {
+    display: flex;
+  }
+
+  .overview-header {
+    width: 100%;
+    max-width: 1060px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ffffff;
+    margin-bottom: 28px;
+  }
+
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    width: 100%;
+    max-width: 1060px;
+  }
+
+  .overview-card {
+    background: #1e293b;
+    border: 2px solid #334155;
+    border-radius: 12px;
+    padding: 22px;
+    color: #f8fafc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .overview-card:hover, .overview-card.current {
+    border-color: #38bdf8;
+    background: #0f172a;
+    transform: translateY(-4px);
+  }
+
+  .overview-card-num {
+    font-size: 13px;
+    font-weight: 700;
+    color: #38bdf8;
+    margin-bottom: 6px;
+  }
+
+  .overview-card-title {
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .overview-card-sub {
+    font-size: 14px;
+    color: #94a3b8;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<div id="stage-wrapper">
+  <div id="slide-stage">
+
+    <!-- SLIDE 1: COVER -->
+    <section class="slide slide-cover active" data-title="표지: 푸른 동해, 빛과 바람이 머무는 곳">
+      <div class="slide-page-badge">1 / 5</div>
+
+      <!-- Decorative East Sea Sunrise & Wave Illustration -->
+      <svg class="cover-bg-svg" viewBox="0 0 680 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="sunGlow" cx="50%" cy="42%" r="48%">
+            <stop offset="0%" stop-color="#fde047" stop-opacity="0.85"/>
+            <stop offset="45%" stop-color="#fb923c" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#0e7490" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="wave1" x1="0" y1="420" x2="680" y2="720" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#0284c7" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#082f49" stop-opacity="0.95"/>
+          </linearGradient>
+          <linearGradient id="wave2" x1="100" y1="500" x2="680" y2="720" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#0c4a6e" stop-opacity="0.9"/>
+          </linearGradient>
+        </defs>
+        <circle cx="430" cy="290" r="260" fill="url(#sunGlow)"/>
+        <circle cx="430" cy="290" r="76" fill="#fef08a" opacity="0.9"/>
+        <!-- Horizon line -->
+        <line x1="140" y1="366" x2="680" y2="366" stroke="#bae6fd" stroke-opacity="0.35" stroke-width="1.5"/>
+        <!-- Sea reflection -->
+        <rect x="375" y="376" width="110" height="5" rx="2.5" fill="#fef08a" opacity="0.65"/>
+        <rect x="392" y="390" width="76" height="4" rx="2" fill="#fde047" opacity="0.5"/>
+        <rect x="405" y="403" width="50" height="3.5" rx="1.75" fill="#fde047" opacity="0.35"/>
+        <!-- Dynamic Waves -->
+        <path d="M120 460 C260 410, 420 510, 680 430 L680 720 L120 720 Z" fill="url(#wave1)"/>
+        <path d="M60 540 C240 490, 440 590, 680 510 L680 720 L60 720 Z" fill="url(#wave2)"/>
+        <!-- Sea Pillars Silhouette -->
+        <path d="M275 366 L284 265 L292 248 L299 268 L307 366 Z" fill="#082f49"/>
+        <path d="M245 366 L252 318 L261 325 L266 366 Z" fill="#0c4a6e"/>
+        <path d="M315 366 L321 310 L330 322 L334 366 Z" fill="#0c4a6e"/>
+      </svg>
+
+      <div class="cover-content">
+        <div class="badge">DONGHAE CITY TOURISM GUIDE</div>
+        <h1 class="cover-title">푸른 동해,<br><span>빛과 바람</span>이 머무는 곳</h1>
+        <p class="cover-subtitle">
+          천혜의 해안 절경과 유서 깊은 인문 정취, 그리고 바다 위를 걷는 역동적인 체험까지.<br>
+          동해시가 품은 대표 관광 명소를 한눈에 살펴봅니다.
+        </p>
+      </div>
+
+      <div class="cover-index-grid">
+        <div class="cover-index-item" onclick="goToSlide(1)">
+          <div class="cover-index-num">01 / SUNRISE</div>
+          <div class="cover-index-name">추암 촛대바위</div>
+        </div>
+        <div class="cover-index-item" onclick="goToSlide(2)">
+          <div class="cover-index-num">02 / COASTAL</div>
+          <div class="cover-index-name">추암해변 &amp; 해수욕장</div>
+        </div>
+        <div class="cover-index-item" onclick="goToSlide(3)">
+          <div class="cover-index-num">03 / HERITAGE</div>
+          <div class="cover-index-name">만경대</div>
+        </div>
+        <div class="cover-index-item" onclick="goToSlide(4)">
+          <div class="cover-index-num">04 / ACTIVITY</div>
+          <div class="cover-index-name">도째비골 스카이밸리</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: CHUAM CHOTDAEBawi -->
+    <section class="slide slide-content" data-title="01. 추암 촛대바위">
+      <div class="slide-page-badge">2 / 5</div>
+      <div class="text-column">
+        <div class="slide-kicker">
+          <span class="slide-kicker-line"></span>
+          <span>SPOT 01 · 동해안 대표 일출 명소</span>
+        </div>
+        <h2 class="slide-heading">추암 촛대바위</h2>
+        <p class="slide-tagline">애국가 첫 소절의 배경이 된 자연의 조형미</p>
+        <p class="slide-desc">
+          바다 속에서 솟아오른 기암괴석이 장관을 이루는 동해안의 상징적인 일출 명소입니다. 오랜 세월 파도와 바람이 빚어낸 기암괴석 너머로 붉은 태양이 떠오르는 순간, 깊은 감동과 함께 사색의 시간을 선사합니다.
+        </p>
+        <div class="feature-list">
+          <div class="feature-card">
+            <div class="feature-dot">1</div>
+            <div class="feature-text">기암괴석과 수평선이 어우러지는 환상적인 일출 풍경</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-dot">2</div>
+            <div class="feature-text">주변 해안을 따라 연결된 산책로와 출렁다리로 다채로운 조망 제공</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-dot">3</div>
+            <div class="feature-text">고요하고 정적인 분위기 속에서 사색과 휴식을 즐기기에 적합한 공간</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="visual-column">
+        <div class="artwork-frame">
+          <svg viewBox="0 0 520 490" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="330" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#1e1b4b"/>
+                <stop offset="45%" stop-color="#9a3412"/>
+                <stop offset="80%" stop-color="#f97316"/>
+                <stop offset="100%" stop-color="#fde047"/>
+              </linearGradient>
+              <linearGradient id="sea2" x1="0" y1="330" x2="0" y2="490" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#7c2d12"/>
+                <stop offset="35%" stop-color="#0c4a6e"/>
+                <stop offset="100%" stop-color="#082f49"/>
+              </linearGradient>
+            </defs>
+            <rect width="520" height="330" fill="url(#sky2)"/>
+            <circle cx="290" cy="285" r="56" fill="#fef08a"/>
+            <circle cx="290" cy="285" r="84" fill="#fde047" opacity="0.25"/>
+            <rect y="330" width="520" height="160" fill="url(#sea2)"/>
+            <!-- Sun reflection -->
+            <ellipse cx="290" cy="348" rx="45" ry="6" fill="#fef08a" opacity="0.7"/>
+            <ellipse cx="290" cy="368" rx="32" ry="4" fill="#fde047" opacity="0.5"/>
+            <ellipse cx="290" cy="388" rx="20" ry="3" fill="#fde047" opacity="0.35"/>
+            <!-- Chotdaebawi (Candlestick Rock) -->
+            <path d="M216 342 L225 185 L234 156 L241 182 L249 342 Z" fill="#0f172a"/>
+            <!-- Surrounding Sea Stacks -->
+            <path d="M145 346 L156 262 L170 250 L180 272 L192 346 Z" fill="#1e293b"/>
+            <path d="M335 344 L348 258 L362 270 L374 344 Z" fill="#1e293b"/>
+            <path d="M385 352 L405 288 L428 295 L446 352 Z" fill="#0f172a"/>
+            <!-- Suspension bridge hint -->
+            <path d="M20 270 Q85 292 150 268" stroke="#334155" stroke-width="2.5" fill="none"/>
+            <path d="M20 282 Q85 304 150 280" stroke="#475569" stroke-width="2" fill="none"/>
+            <!-- Foreground waves -->
+            <path d="M0 410 Q130 395 260 412 T520 405 L520 490 L0 490 Z" fill="#082f49" opacity="0.75"/>
+          </svg>
+          <div class="artwork-caption">
+            <span>강원특별자치도 동해시 촛대바위길</span>
+            <span class="artwork-tag">명승 · 일출 명소</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: CHUAM BEACH -->
+    <section class="slide slide-content" data-title="02. 추암해변 및 추암해수욕장">
+      <div class="slide-page-badge">3 / 5</div>
+      <div class="text-column">
+        <div class="slide-kicker">
+          <span class="slide-kicker-line"></span>
+          <span>SPOT 02 · 고즈넉한 해안 휴식처</span>
+        </div>
+        <h2 class="slide-heading">추암해변 &amp; 추암해수욕장</h2>
+        <p class="slide-tagline">맑은 바닷물과 기암괴석이 어우러진 아늑한 해변</p>
+        <p class="slide-desc">
+          아담하고 고즈넉한 백사장과 투명한 바닷물이 조화를 이루는 해변입니다. 파도가 잔잔하고 주변 기반 시설이 잘 정비되어 있어 북적임을 벗어나 사계절 내내 여유롭게 바다를 거닐며 휴식을 취할 수 있습니다.
+        </p>
+        <div class="feature-list">
+          <div class="feature-card">
+            <div class="feature-dot">1</div>
+            <div class="feature-text">깨끗한 수질과 잔잔한 파도로 안전하고 쾌적한 해변 산책 환경</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-dot">2</div>
+            <div class="feature-text">촛대바위 및 해암정 등 역사·문화 자원이 인접해 도보 이동 용이</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-dot">3</div>
+            <div class="feature-text">가족 단위 방문객과 조용한 휴양을 선호하는 여행자에게 최적의 거점</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="visual-column">
+        <div class="artwork-frame">
+          <svg viewBox="0 0 520 490" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="sky3" x1="0" y1="0" x2="0" y2="230" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#0284c7"/>
+                <stop offset="100%" stop-color="#bae6fd"/>
+              </linearGradient>
+              <linearGradient id="sea3" x1="0" y1="220" x2="0" y2="370" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#0369a1"/>
+                <stop offset="55%" stop-color="#06b6d4"/>
+                <stop offset="100%" stop-color="#67e8f9"/>
+              </linearGradient>
+              <linearGradient id="sand3" x1="0" y1="330" x2="0" y2="490" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#fef3c7"/>
+                <stop offset="100%" stop-color="#fde68a"/>
+              </linearGradient>
+            </defs>
+            <rect width="520" height="230" fill="url(#sky3)"/>
+            <!-- Soft Clouds -->
+            <path d="M80 95 Q105 75 130 95 Q155 82 175 100 L65 100 Z" fill="#ffffff" opacity="0.75"/>
+            <path d="M350 75 Q375 55 405 75 Q430 65 445 82 L335 82 Z" fill="#ffffff" opacity="0.65"/>
+            <!-- Turquoise Sea -->
+            <rect y="225" width="520" height="155" fill="url(#sea3)"/>
+            <!-- Distant Rocks -->
+            <path d="M390 225 L402 175 L412 182 L422 225 Z" fill="#334155"/>
+            <path d="M430 225 L445 190 L460 225 Z" fill="#475569"/>
+            <!-- Golden Sandy Beach -->
+            <path d="M0 355 Q180 325 360 365 T520 350 L520 490 L0 490 Z" fill="url(#sand3)"/>
+            <!-- White Foam Shoreline -->
+            <path d="M0 355 Q180 325 360 365 T520 350" stroke="#ffffff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.85"/>
+            <path d="M0 342 Q180 312 360 352 T520 338" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.5"/>
+            <!-- Haeamjeong Pavilion Silhouette on Left Cliff -->
+            <path d="M0 265 L95 275 L125 335 L0 340 Z" fill="#1e293b"/>
+            <path d="M22 248 L82 248 L72 234 L32 234 Z" fill="#0f172a"/>
+            <rect x="34" y="248" width="4" height="18" fill="#0f172a"/>
+            <rect x="66" y="248" width="4" height="18" fill="#0f172a"/>
+          </svg>
+          <div class="artwork-caption">
+            <span>추암해변 · 해암정 인접 해안선</span>
+            <span class="artwork-tag">가족 휴양 · 해안 산책</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: MANGYEONGDAE -->
+    <section class="slide slide-content" data-title="03. 만경대">
+      <div class="slide-page-badge">4 / 5</div>
+      <div class="text-column">
+        <div class="slide-kicker">
+          <span class="slide-kicker-line"></span>
+          <span>SPOT 03 · 바다와 도심을 품은 조망 명소</span>
+        </div>
+        <h2 class="slide-heading">만경대</h2>
+        <p class="slide-tagline">선조들의 풍류와 인문학적 깊이가 깃든 정자</p>
+        <p class="slide-desc">
+          동해의 푸른 바다와 시원하게 펼쳐진 도심 풍경을 한눈에 조망할 수 있는 유서 깊은 명소입니다. 자연과 세월의 결이 느껴지는 이곳에는 과거 선조들이 경관을 즐기며 시문을 읊던 풍류의 자취가 고스란히 서려 있습니다.
+        </p>
+        <div class="feature-list">
+          <div class="feature-card">
+            <div class="feature-dot">1</div>
+            <div class="feature-text">탁 트인 시야로 동해 바다와 도심, 주변 자연경관을 동시에 조망</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-dot">2</div>
+            <div class="feature-text">오랜 역사적 유래와 정취가 깃들어 인문학적 깊이를 더하는 공간</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-dot">3</div>
+            <div class="feature-text">번잡함을 벗어나 차분하게 사색하며 걷기 좋은 산책 코스</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="visual-column">
+        <div class="artwork-frame">
+          <svg viewBox="0 0 520 490" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="sky4" x1="0" y1="0" x2="0" y2="270" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#0f172a"/>
+                <stop offset="55%" stop-color="#1e3a8a"/>
+                <stop offset="100%" stop-color="#38bdf8"/>
+              </linearGradient>
+              <linearGradient id="sea4" x1="0" y1="265" x2="0" y2="490" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#0284c7"/>
+                <stop offset="100%" stop-color="#082f49"/>
+              </linearGradient>
+            </defs>
+            <rect width="520" height="270" fill="url(#sky4)"/>
+            <rect y="265" width="520" height="225" fill="url(#sea4)"/>
+            <!-- Distant Mountain & City Coastline -->
+            <path d="M0 265 Q90 220 180 255 T380 245 L520 265 Z" fill="#1e293b" opacity="0.65"/>
+            <!-- Elevated Cliff -->
+            <path d="M0 330 L260 345 L330 490 L0 490 Z" fill="#0f172a"/>
+            <!-- Traditional Korean Pavilion (Mangyeongdae) -->
+            <!-- Stone base -->
+            <rect x="75" y="315" width="145" height="20" rx="2" fill="#334155"/>
+            <!-- Pillars -->
+            <rect x="92" y="262" width="7" height="53" fill="#78350f"/>
+            <rect x="132" y="262" width="7" height="53" fill="#78350f"/>
+            <rect x="172" y="262" width="7" height="53" fill="#78350f"/>
+            <rect x="202" y="262" width="7" height="53" fill="#78350f"/>
+            <!-- Wooden Railing -->
+            <rect x="85" y="298" width="130" height="5" fill="#92400e"/>
+            <!-- Curved Traditional Roof -->
+            <path d="M58 265 Q148 250 238 265 L212 232 Q148 224 84 232 Z" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+            <path d="M84 232 Q148 220 212 232 L195 218 Q148 212 101 218 Z" fill="#0f172a"/>
+            <!-- Pine Tree Branch -->
+            <path d="M360 490 Q375 390 340 320 Q315 280 275 268" stroke="#1e293b" stroke-width="12" stroke-linecap="round" fill="none"/>
+            <ellipse cx="270" cy="262" rx="46" ry="16" fill="#064e3b"/>
+            <ellipse cx="315" cy="285" rx="38" ry="14" fill="#065f46"/>
+          </svg>
+          <div class="artwork-caption">
+            <span>동해 바다와 시가지를 굽어보는 만경대</span>
+            <span class="artwork-tag">인문 역사 · 파노라마 조망</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: DOJAEBBI GOL SKY VALLEY -->
+    <section class="slide slide-content" data-title="04. 도째비골 스카이밸리">
+      <div class="slide-page-badge">5 / 5</div>
+      <div class="text-column">
+        <div class="slide-kicker">
+          <span class="slide-kicker-line"></span>
+          <span>SPOT 04 · 묵호항 해안 절벽 체험 관광지</span>
+        </div>
+        <h2 class="slide-heading">도째비골 스카이밸리</h2>
+        <p class="slide-tagline">하늘 위를 걷는 스릴과 묵호 바다의 파노라마</p>
+        <p class="slide-desc">
+          묵호항 해안 절벽 위에 조성된 복합 체험형 관광지입니다. 지역의 고유한 도깨비 설화와 현대적인 스카이워크 디자인이 결합되어, 하늘 위를 걷는 아찔한 즐거움과 탁 트인 묵호 바다 전경을 동시에 선사합니다.
+        </p>
+        <div class="feature-list">
+          <div class="feature-card">
+            <div class="feature-dot">1</div>
+            <div class="feature-text">해발 59m 높이에서 바다 위를 걷는 듯한 스릴의 스카이워크</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-dot">2</div>
+            <div class="feature-text">묵호의 푸른 바다와 항구 마을 전경을 한눈에 담는 대표 포토스팟</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-dot">3</div>
+            <div class="feature-text">인근 묵호등대, 논골담길과 연계해 걸어 다니기 좋은 도보 관광 코스</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="visual-column">
+        <div class="artwork-frame">
+          <svg viewBox="0 0 520 490" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="sky5" x1="0" y1="0" x2="0" y2="260" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#0369a1"/>
+                <stop offset="100%" stop-color="#7dd3fc"/>
+              </linearGradient>
+              <linearGradient id="sea5" x1="0" y1="255" x2="0" y2="490" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#0284c7"/>
+                <stop offset="100%" stop-color="#0c4a6e"/>
+              </linearGradient>
+            </defs>
+            <rect width="520" height="260" fill="url(#sky5)"/>
+            <rect y="255" width="520" height="235" fill="url(#sea5)"/>
+            <!-- Breakwater & Mukho Harbor -->
+            <path d="M220 278 L460 278 L475 288 L210 288 Z" fill="#cbd5e1"/>
+            <!-- Mukho Lighthouse on Left Hill -->
+            <path d="M0 190 Q95 195 160 310 L185 490 L0 490 Z" fill="#1e293b"/>
+            <rect x="64" y="128" width="22" height="66" rx="3" fill="#ffffff"/>
+            <rect x="60" y="120" width="30" height="10" rx="2" fill="#0f172a"/>
+            <polygon points="75,105 60,120 90,120" fill="#ef4444"/>
+            <!-- Lighthouse beam -->
+            <polygon points="90,124 260,95 260,152" fill="#fef08a" opacity="0.28"/>
+            <!-- Skywalk Structure extending over the sea -->
+            <path d="M125 275 L355 235 L385 248 L145 302 Z" fill="#38bdf8" fill-opacity="0.45" stroke="#ffffff" stroke-width="3"/>
+            <!-- Support Pylons -->
+            <line x1="210" y1="288" x2="210" y2="490" stroke="#94a3b8" stroke-width="6"/>
+            <line x1="295" y1="266" x2="295" y2="490" stroke="#94a3b8" stroke-width="6"/>
+            <!-- Glass Deck Grid Lines -->
+            <line x1="185" y1="265" x2="205" y2="288" stroke="#e0f2fe" stroke-width="1.5"/>
+            <line x1="245" y1="254" x2="268" y2="274" stroke="#e0f2fe" stroke-width="1.5"/>
+            <line x1="305" y1="243" x2="330" y2="260" stroke="#e0f2fe" stroke-width="1.5"/>
+          </svg>
+          <div class="artwork-caption">
+            <span>묵호항 · 도째비골 스카이밸리 &amp; 묵호등대</span>
+            <span class="artwork-tag">스카이워크 · 도보 연계</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Floating Navigation Bar -->
+<div class="controls-bar">
+  <button class="ctrl-btn" id="btn-prev" onclick="prevSlide()" title="이전 슬라이드 (←)">← 이전</button>
+  <div class="slide-dots" id="slide-dots"></div>
+  <button class="ctrl-btn" id="btn-next" onclick="nextSlide()" title="다음 슬라이드 (→)">다음 →</button>
+  <div class="divider-v"></div>
+  <button class="ctrl-btn" onclick="toggleOverview()" title="전체 목차 보기 (G)">목차 (G)</button>
+  <button class="ctrl-btn" onclick="toggleFullscreen()" title="전체화면 전환 (F)">전체화면 (F)</button>
+</div>
+
+<!-- Overview Modal -->
+<div id="overview-modal" onclick="if(event.target === this) toggleOverview()">
+  <div class="overview-header">
+    <h3 style="font-size: 22px; font-weight: 700;">슬라이드 전체 목차 (클릭하여 이동)</h3>
+    <button class="ctrl-btn" style="background: rgba(255,255,255,0.12);" onclick="toggleOverview()">닫기 (ESC)</button>
+  </div>
+  <div class="overview-grid" id="overview-grid"></div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const dotsContainer = document.getElementById('slide-dots');
+  const overviewModal = document.getElementById('overview-modal');
+  const overviewGrid = document.getElementById('overview-grid');
+  const stage = document.getElementById('slide-stage');
+  let currentSlide = 0;
+
+  // Initialize dots and overview cards
+  slides.forEach((slide, idx) => {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (idx === 0 ? ' active' : '');
+    dot.onclick = () => goToSlide(idx);
+    dotsContainer.appendChild(dot);
+
+    const card = document.createElement('div');
+    card.className = 'overview-card' + (idx === 0 ? ' current' : '');
+    card.innerHTML = `
+      <div class="overview-card-num">SLIDE 0${idx + 1}</div>
+      <div class="overview-card-title">${slide.dataset.title}</div>
+      <div class="overview-card-sub">클릭하면 해당 슬라이드로 바로 이동합니다.</div>
+    `;
+    card.onclick = () => {
+      goToSlide(idx);
+      toggleOverview();
+    };
+    overviewGrid.appendChild(card);
+  });
+
+  function updateUI() {
+    slides.forEach((slide, idx) => {
+      slide.classList.toggle('active', idx === currentSlide);
+    });
+    document.querySelectorAll('.dot').forEach((dot, idx) => {
+      dot.classList.toggle('active', idx === currentSlide);
+    });
+    document.querySelectorAll('.overview-card').forEach((card, idx) => {
+      card.classList.toggle('current', idx === currentSlide);
+    });
+    document.getElementById('btn-prev').disabled = currentSlide === 0;
+    document.getElementById('btn-next').disabled = currentSlide === slides.length - 1;
+  }
+
+  function goToSlide(index) {
+    if (index >= 0 && index < slides.length) {
+      currentSlide = index;
+      updateUI();
+    }
+  }
+
+  function nextSlide() {
+    if (currentSlide < slides.length - 1) {
+      currentSlide++;
+      updateUI();
+    }
+  }
+
+  function prevSlide() {
+    if (currentSlide > 0) {
+      currentSlide--;
+      updateUI();
+    }
+  }
+
+  function toggleOverview() {
+    overviewModal.classList.toggle('open');
+  }
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+
+  // Responsive 16:9 Stage Scaling
+  function fitStage() {
+    const padding = 48;
+    const availW = window.innerWidth - padding;
+    const availH = window.innerHeight - 96;
+    const scale = Math.min(availW / 1280, availH / 720, 1.15);
+    stage.style.transform = `scale(${scale})`;
+  }
+
+  window.addEventListener('resize', fitStage);
+  fitStage();
+
+  // Keyboard Navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      if (!overviewModal.classList.contains('open')) {
+        e.preventDefault();
+        nextSlide();
+      }
+    } else if (e.key === 'ArrowLeft') {
+      if (!overviewModal.classList.contains('open')) {
+        e.preventDefault();
+        prevSlide();
+      }
+    } else if (e.key.toLowerCase() === 'g') {
+      toggleOverview();
+    } else if (e.key.toLowerCase() === 'f') {
+      toggleFullscreen();
+    } else if (e.key === 'Escape' && overviewModal.classList.contains('open')) {
+      toggleOverview();
+    }
+  });
+
+  // Touch Swipe Support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+  document.addEventListener('touchend', (e) => {
+    const diff = touchStartX - e.changedTouches[0].screenX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) nextSlide();
+      else prevSlide();
+    }
+  });
+
+  updateUI();
+</script>
+</body>
+</html>
